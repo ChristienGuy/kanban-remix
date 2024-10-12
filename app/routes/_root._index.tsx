@@ -38,12 +38,20 @@ type Data = {
 };
 
 export async function loader(args: LoaderFunctionArgs) {
+  if (!process.env.API_BASE_URL) {
+    throw new Error("API_BASE_URL is not set");
+  }
+
   const { userId } = await getAuth(args);
   if (!userId) {
     return redirect("/sign-in");
   }
 
-  const response = await request<Data>("http://localhost:4000", document);
+  const response = await request<Data>({
+    url: process.env.API_BASE_URL,
+    document,
+    requestHeaders: args.request.headers,
+  });
 
   return {
     response,
